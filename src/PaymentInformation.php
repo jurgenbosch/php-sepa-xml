@@ -164,6 +164,16 @@ class PaymentInformation
      */
     protected $dateFormat = 'Y-m-d';
 
+    /**
+     * @var string
+     */
+    protected $serviceLevelCode = "SEPA";
+
+    /**
+     * @var string|null
+     */
+    protected $chargeBearer = "SLEV";
+
     public function __construct(string $id, string $originAccountIBAN, ?string $originAgentBIC, string $originName, string $originAccountCurrency = 'EUR')
     {
         $this->id = $id;
@@ -408,5 +418,39 @@ class PaymentInformation
     public function setDueDateFormat(string $format): void
     {
         $this->dateFormat = $format;
+    }
+
+    public function getServiceLevelCode(): string
+    {
+        return $this->serviceLevelCode;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function setServiceLevelCode(string $code): void
+    {
+        $code = strtoupper($code);
+        if (!in_array($code, array('SEPA', 'NURG', 'URGP', 'SDVA'))) {
+            throw new InvalidArgumentException("Invalid Service Level Code: $code");
+        }
+        $this->serviceLevelCode = $code;
+    }
+
+    public function getChargeBearer(): ?string
+    {
+        return ($this->chargeBearer) ?: null;
+    }
+
+    public function setChargeBearer(string $chargeBearer = null): void
+    {
+        if ($chargeBearer) {
+            $chargeBearer = strtoupper($chargeBearer);
+            if (!in_array($chargeBearer, array('SLEV', 'DEBT', 'CRED', 'SHAR'))) {
+                throw new InvalidArgumentException("Invalid Charge Bearer: $chargeBearer");
+            }
+        }
+
+        $this->chargeBearer = $chargeBearer;
     }
 }

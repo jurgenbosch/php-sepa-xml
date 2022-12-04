@@ -75,7 +75,7 @@ class CustomerCreditTransferDomBuilder extends BaseDomBuilder
             $paymentTypeInformation->appendChild($instructionPriority);
         }
         $serviceLevel = $this->createElement('SvcLvl');
-        $serviceLevel->appendChild($this->createElement('Cd', 'SEPA'));
+        $serviceLevel->appendChild($this->createElement('Cd', $paymentInformation->getServiceLevelCode()));
         $paymentTypeInformation->appendChild($serviceLevel);
         if ($paymentInformation->getCategoryPurposeCode()) {
             $categoryPurpose = $this->createElement('CtgyPurp');
@@ -117,7 +117,10 @@ class CustomerCreditTransferDomBuilder extends BaseDomBuilder
         $debtorAgent->appendChild($financialInstitutionId);
         $this->currentPayment->appendChild($debtorAgent);
 
-        $this->currentPayment->appendChild($this->createElement('ChrgBr', 'SLEV'));
+        if ($paymentInformation->getChargeBearer()) {
+            $this->currentPayment->appendChild($this->createElement('ChrgBr', $paymentInformation->getChargeBearer()));
+        }
+
         $this->currentTransfer->appendChild($this->currentPayment);
     }
 
@@ -253,6 +256,10 @@ class CustomerCreditTransferDomBuilder extends BaseDomBuilder
         // Gemerate country address node.
         if ((bool)$transactionInformation->getCountry()) {
             $postalAddress->appendChild($this->createElement('Ctry', $transactionInformation->getCountry()));
+        }
+
+        if (!empty($transactionInformation->getTownName())) {
+            $postalAddress->appendChild($this->createElement('TwnNm', $transactionInformation->getTownName()));
         }
 
         // Ensure $postalAddressData is an array as getPostalAddress() returns either string or string[].
