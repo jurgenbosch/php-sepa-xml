@@ -93,6 +93,15 @@ class CustomerCreditTransferDomBuilder extends BaseDomBuilder
         $this->currentPayment->appendChild($this->createElement('ReqdExctnDt', $paymentInformation->getDueDate()));
         $debtor = $this->createElement('Dbtr');
         $debtor->appendChild($this->createElement('Nm', $paymentInformation->getOriginName()));
+
+
+        if ($paymentInformation->getOriginAccountCurrency() === 'GBP') {
+            $postalAddress = $debtor->appendChild($this->createElement('PstlAdr'));
+
+            // Generate country address node.
+            $postalAddress->appendChild($this->createElement('Ctry', 'GB'));
+        }
+
         $this->currentPayment->appendChild($debtor);
 
         if ($paymentInformation->getOriginBankPartyIdentification() !== null && $this->painFormat === 'pain.001.001.03') {
@@ -107,7 +116,7 @@ class CustomerCreditTransferDomBuilder extends BaseDomBuilder
         $id = $this->createElement('Id');
         $id->appendChild($this->createElement('IBAN', $paymentInformation->getOriginAccountIBAN()));
         $debtorAccount->appendChild($id);
-        if ($paymentInformation->getOriginAccountCurrency()) {
+        if ($paymentInformation->getOriginAccountCurrency() && $paymentInformation->isShowCurrency()) {
             $debtorAccount->appendChild($this->createElement('Ccy', $paymentInformation->getOriginAccountCurrency()));
         }
         $this->currentPayment->appendChild($debtorAccount);
@@ -253,13 +262,13 @@ class CustomerCreditTransferDomBuilder extends BaseDomBuilder
 
         $postalAddress = $this->createElement('PstlAdr');
 
-        // Gemerate country address node.
-        if ((bool)$transactionInformation->getCountry()) {
-            $postalAddress->appendChild($this->createElement('Ctry', $transactionInformation->getCountry()));
-        }
-
         if (!empty($transactionInformation->getTownName())) {
             $postalAddress->appendChild($this->createElement('TwnNm', $transactionInformation->getTownName()));
+        }
+
+        // Generate country address node.
+        if ((bool)$transactionInformation->getCountry()) {
+            $postalAddress->appendChild($this->createElement('Ctry', $transactionInformation->getCountry()));
         }
 
         // Ensure $postalAddressData is an array as getPostalAddress() returns either string or string[].

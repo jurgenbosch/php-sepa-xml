@@ -174,6 +174,11 @@ class PaymentInformation
      */
     protected $chargeBearer = "SLEV";
 
+    /**
+     * @var bool
+     */
+    protected $showCurrency = true;
+
     public function __construct(string $id, string $originAccountIBAN, ?string $originAgentBIC, string $originName, string $originAccountCurrency = 'EUR')
     {
         $this->id = $id;
@@ -452,5 +457,20 @@ class PaymentInformation
         }
 
         $this->chargeBearer = $chargeBearer;
+    }
+
+    public function isShowCurrency(): bool
+    {
+        return $this->showCurrency;
+    }
+
+    public function hideCurrency(): void
+    {
+        $this->showCurrency = false;
+    }
+
+    public function showCurrency(): void
+    {
+        $this->showCurrency = true;
     }
 }
